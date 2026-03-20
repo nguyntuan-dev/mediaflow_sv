@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediaFlow — Tải Video & Nhạc</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="mediaflow.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Mũi tên tải xuống -->
+            <path d="M11 3V13" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M7 9.5L11 13.5L15 9.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Đường ngang đáy -->
+            <path d="M4 17H18" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- Sóng nhạc trái -->
+            <path d="M2 11C2 9.5 3 8.5 3 7" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+            <!-- Sóng nhạc phải -->
+            <path d="M20 11C20 9.5 19 8.5 19 7" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-media">Media</span><span class="logo-flow">Flow</span>
+        </div>
+      </div>
+
+      <nav>
+        <button class="nav-btn active" onclick="showTab('download', this)">Tải xuống</button>
+        <button class="nav-btn" onclick="showTab('tools', this)">Công cụ</button>
+        <button class="nav-btn" onclick="showTab('history', this)">Lịch sử</button>
+        <button class="nav-btn" onclick="showTab('cloud', this)">Cloud</button>
+      </nav>
+
+      <div class="admin-tag">
+        <span class="admin-dot"></span> Admin
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- TAB: TẢI XUỐNG -->
+    <section id="tab-download" class="tab active">
+
+      <div class="hero">
+        <div class="hero-badge">🚀 Nhanh · Miễn phí · Không watermark</div>
+        <h1>Tải video & nhạc<br><span>từ mọi nền tảng</span></h1>
+        <p class="hero-desc">Hỗ trợ TikTok, YouTube, Facebook. Chọn chất lượng, chọn định dạng — tải ngay.</p>
+      </div>
+
+      <div class="platform-row">
+        <button class="pill active" onclick="setPlatform('tiktok', this)">🎵 TikTok</button>
+        <button class="pill" onclick="setPlatform('youtube', this)">▶ YouTube</button>
+        <button class="pill" onclick="setPlatform('facebook', this)">📘 Facebook</button>
+      </div>
+
+      <div class="url-bar">
+        <input id="urlInput" class="url-input" type="text" placeholder="Dán link video vào đây..." />
+        <button class="btn-primary" onclick="analyzeLink()">Phân tích</button>
+      </div>
+
+      <div id="safeBar" class="safe-bar hidden">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L2 3.5V7.5C2 10.26 4.24 12.74 7 13.5C9.76 12.74 12 10.26 12 7.5V3.5L7 1Z" stroke="#16a34a" stroke-width="1.5"/>
+          <path d="M5 7L6.5 8.5L9 5.5" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Link an toàn — Đã kiểm tra
+      </div>
+
+      <div id="progressWrap" class="progress-wrap hidden">
+        <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+        <span id="progressLabel" class="progress-label">Đang phân tích...</span>
+      </div>
+
+      <div id="resultPanel" class="result-panel hidden">
+        <div class="result-top">
+          <div class="result-thumb" id="thumbIcon">🎵</div>
+          <div class="result-info">
+            <div id="panelTitle" class="result-title">Tên video</div>
+            <div id="panelMeta" class="result-meta">Đang tải thông tin...</div>
+          </div>
+        </div>
+        <div class="result-options">
+          <div class="option-group">
+            <label class="option-label">Chất lượng</label>
+            <div class="chips">
+              <button class="chip active" onclick="setChip(this,'quality')">4K</button>
+              <button class="chip" onclick="setChip(this,'quality')">1080p</button>
+              <button class="chip" onclick="setChip(this,'quality')">720p</button>
+              <button class="chip" onclick="setChip(this,'quality')">480p</button>
+              <button class="chip" onclick="setChip(this,'quality')">Audio</button>
+            </div>
+          </div>
+          <div class="option-group">
+            <label class="option-label">Định dạng</label>
+            <div class="chips">
+              <button class="chip active" onclick="setChip(this,'format')">MP4</button>
+              <button class="chip" onclick="setChip(this,'format')">MP3</button>
+              <button class="chip" onclick="setChip(this,'format')">WEBM</button>
+              <button class="chip" onclick="setChip(this,'format')">FLAC</button>
+              <button class="chip" onclick="setChip(this,'format')">WAV</button>
+            </div>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button class="btn-primary full" onclick="startDownload()">⬇ Tải xuống</button>
+          <div class="btn-row">
+            <button class="btn-outline" onclick="saveThumbnail()">🖼 Thumbnail</button>
+            <button class="btn-outline" onclick="downloadSub()">💬 Phụ đề</button>
+            <button class="btn-outline" onclick="openModal('share')">↗ Chia sẻ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HƯỚNG DẪN SỬ DỤNG -->
+      <div class="section-label">Hướng dẫn sử dụng</div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-icon">📋</div>
+          <div class="guide-body">
+            <div class="guide-title">Sao chép link video</div>
+            <div class="guide-desc">Vào TikTok, YouTube hoặc Facebook → bấm <strong>Chia sẻ</strong> → chọn <strong>Sao chép liên kết</strong></div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-icon">📌</div>
+          <div class="guide-body">
+            <div class="guide-title">Dán link vào ô tìm kiếm</div>
+            <div class="guide-desc">Dán link vừa sao chép vào ô phía trên → bấm <strong>Phân tích</strong> để nhận diện video</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-icon">⚙️</div>
+          <div class="guide-body">
+            <div class="guide-title">Chọn chất lượng & định dạng</div>
+            <div class="guide-desc">Chọn độ phân giải mong muốn (4K, 1080p...) và định dạng file (MP4, MP3, FLAC...)</div>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-icon">⬇️</div>
+          <div class="guide-body">
+            <div class="guide-title">Tải xuống</div>
+            <div class="guide-desc">Bấm nút <strong>Tải xuống</strong> — file sẽ tự động lưu vào thư mục Downloads của máy bạn</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIP BOX -->
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-content">
+          <div class="tip-title">Mẹo hay</div>
+          <div class="tip-list">
+            <div class="tip-item">🎵 Chọn <strong>Audio + MP3</strong> để tải nhạc không có video, dung lượng nhỏ hơn nhiều</div>
+            <div class="tip-item">📱 TikTok chỉ có 1 chất lượng — chọn bất kỳ quality nào cũng cho kết quả như nhau</div>
+            <div class="tip-item">▶ YouTube hỗ trợ tải đến <strong>4K</strong> — cần cài FFmpeg để ghép video + audio</div>
+            <div class="tip-item">⏱ Video dài có thể mất vài phút để xử lý — vui lòng chờ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ƯU NHƯỢC ĐIỂM -->
+      <div class="section-label">Ưu điểm & Nhược điểm</div>
+      <div class="pros-cons">
+        <div class="pros-card">
+          <div class="pc-header pros-header">
+            <span class="pc-icon">✅</span>
+            <span class="pc-title">Ưu điểm</span>
+          </div>
+          <ul class="pc-list">
+            <li>Hoàn toàn <strong>miễn phí</strong>, không giới hạn lượt tải</li>
+            <li>Tải video <strong>không watermark</strong> từ TikTok</li>
+            <li>Hỗ trợ nhiều định dạng: MP4, MP3, FLAC, WAV, WEBM</li>
+            <li>Chất lượng cao lên đến <strong>4K</strong> với YouTube</li>
+            <li>Không cần đăng ký tài khoản</li>
+            <li>Giao diện đơn giản, dễ dùng trên mọi thiết bị</li>
+            <li>Lịch sử tải được lưu lại để tra cứu</li>
+          </ul>
+        </div>
+        <div class="cons-card">
+          <div class="pc-header cons-header">
+            <span class="pc-icon">⚠️</span>
+            <span class="pc-title">Nhược điểm</span>
+          </div>
+          <ul class="pc-list">
+            <li>Cần cài <strong>FFmpeg</strong> để tải video MP4 có âm thanh</li>
+            <li>Tốc độ tải phụ thuộc vào <strong>kết nối mạng</strong></li>
+            <li>Video Facebook <strong>riêng tư</strong> có thể không tải được</li>
+            <li>TikTok không hỗ trợ chọn chất lượng cụ thể</li>
+            <li>Video dài có thể mất thời gian xử lý</li>
+            <li>Cần backend đang chạy để sử dụng đầy đủ tính năng</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section-label">Nền tảng hỗ trợ</div>
+      <div class="card-row">
+        <div class="card" onclick="setPlatformCard('tiktok')">
+          <div class="card-icon-wrap tiktok">🎵</div>
+          <div class="card-body">
+            <div class="card-title">TikTok</div>
+            <div class="card-sub">Video, ảnh, xóa watermark</div>
+            <div class="tag-row"><span class="tag">Video</span><span class="tag">Ảnh</span><span class="tag blue">No watermark</span></div>
+          </div>
+        </div>
+        <div class="card" onclick="setPlatformCard('youtube')">
+          <div class="card-icon-wrap youtube">▶</div>
+          <div class="card-body">
+            <div class="card-title">YouTube</div>
+            <div class="card-sub">Video, playlist, thumbnail</div>
+            <div class="tag-row"><span class="tag blue">4K</span><span class="tag">Playlist</span><span class="tag">MP3</span></div>
+          </div>
+        </div>
+        <div class="card" onclick="setPlatformCard('facebook')">
+          <div class="card-icon-wrap facebook">📘</div>
+          <div class="card-body">
+            <div class="card-title">Facebook</div>
+            <div class="card-sub">Video, reels, ảnh</div>
+            <div class="tag-row"><span class="tag">Video</span><span class="tag">Reels</span><span class="tag blue">Xóa logo</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: CÔNG CỤ -->
+    <section id="tab-tools" class="tab hidden">
+      <div class="page-title">Bộ công cụ MediaFlow</div>
+
+      <!-- TỔNG QUAN TÍNH NĂNG -->
+      <div class="features-hero">
+        <div class="features-hero-text">
+          <div class="fh-badge">⚡ Tất cả trong một</div>
+          <div class="fh-title">Mọi thứ bạn cần để xử lý media</div>
+          <div class="fh-desc">Từ tải video, chuyển đổi định dạng, xử lý ảnh đến quản lý file — MediaFlow cung cấp đầy đủ công cụ miễn phí.</div>
+        </div>
+        <div class="features-stats">
+          <div class="stat-item">
+            <div class="stat-num">3</div>
+            <div class="stat-label">Nền tảng</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num">7</div>
+            <div class="stat-label">Định dạng</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num">4K</div>
+            <div class="stat-label">Chất lượng</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num">∞</div>
+            <div class="stat-label">Miễn phí</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHỨC NĂNG CHI TIẾT -->
+      <div class="feature-section-label">📥 Tải xuống</div>
+      <div class="feature-detail-grid">
+        <div class="feature-detail-card">
+          <div class="fd-icon">🎵</div>
+          <div class="fd-name">TikTok Downloader</div>
+          <div class="fd-desc">Tải video TikTok không watermark, tải ảnh TikTok độ phân giải gốc</div>
+          <div class="fd-list">
+            <span>✓ Không watermark</span>
+            <span>✓ Video + Ảnh</span>
+            <span>✓ Chất lượng gốc</span>
+          </div>
+        </div>
+        <div class="feature-detail-card">
+          <div class="fd-icon">▶</div>
+          <div class="fd-name">YouTube Downloader</div>
+          <div class="fd-desc">Tải video YouTube từ 480p đến 4K, tải playlist, thumbnail và phụ đề</div>
+          <div class="fd-list">
+            <span>✓ Lên đến 4K</span>
+            <span>✓ Playlist</span>
+            <span>✓ Phụ đề SRT</span>
+          </div>
+        </div>
+        <div class="feature-detail-card">
+          <div class="fd-icon">📘</div>
+          <div class="fd-name">Facebook Downloader</div>
+          <div class="fd-desc">Tải video Facebook công khai, Reels, ảnh từ bài đăng và story</div>
+          <div class="fd-list">
+            <span>✓ Video + Reels</span>
+            <span>✓ Ảnh bài đăng</span>
+            <span>✓ Xóa logo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-section-label">🔄 Chuyển đổi định dạng</div>
+      <div class="format-showcase">
+        <div class="format-col">
+          <div class="format-col-title">🎬 Video</div>
+          <div class="format-chips-row">
+            <span class="fmt-chip video">MP4</span>
+            <span class="fmt-chip video">WEBM</span>
+            <span class="fmt-chip video">MKV</span>
+          </div>
+        </div>
+        <div class="format-arrow">→</div>
+        <div class="format-col">
+          <div class="format-col-title">🎵 Âm thanh</div>
+          <div class="format-chips-row">
+            <span class="fmt-chip audio">MP3</span>
+            <span class="fmt-chip audio">FLAC</span>
+            <span class="fmt-chip audio">WAV</span>
+            <span class="fmt-chip audio">M4A</span>
+          </div>
+        </div>
+        <div class="format-arrow">→</div>
+        <div class="format-col">
+          <div class="format-col-title">🖼 Hình ảnh</div>
+          <div class="format-chips-row">
+            <span class="fmt-chip image">JPG</span>
+            <span class="fmt-chip image">PNG</span>
+            <span class="fmt-chip image">WEBP</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-section-label">🛠 Công cụ nâng cao</div>
+      <div class="advanced-grid">
+        <div class="adv-card">
+          <div class="adv-icon">✂️</div>
+          <div class="adv-name">Xóa Watermark</div>
+          <div class="adv-desc">Loại bỏ logo, watermark khỏi ảnh và video tự động</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">⇲</div>
+          <div class="adv-name">Resize ảnh</div>
+          <div class="adv-desc">Thay đổi kích thước ảnh theo pixel hoặc phần trăm</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">✁</div>
+          <div class="adv-name">Crop ảnh</div>
+          <div class="adv-desc">Cắt vùng ảnh theo toạ độ tùy chỉnh</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">📦</div>
+          <div class="adv-name">Nén ảnh</div>
+          <div class="adv-desc">Giảm dung lượng ảnh mà không mất chất lượng</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">💬</div>
+          <div class="adv-name">Phụ đề</div>
+          <div class="adv-desc">Tải và nhúng phụ đề SRT vào video tự động</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">🖼</div>
+          <div class="adv-name">Thumbnail</div>
+          <div class="adv-desc">Lưu ảnh thumbnail chất lượng cao từ video</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">☁️</div>
+          <div class="adv-name">Cloud Storage</div>
+          <div class="adv-desc">Lưu file thẳng lên Google Drive hoặc OneDrive</div>
+        </div>
+        <div class="adv-card">
+          <div class="adv-icon">🔗</div>
+          <div class="adv-name">Chia sẻ link</div>
+          <div class="adv-desc">Tạo link chia sẻ file có thời hạn 24 giờ</div>
+        </div>
+      </div>
+
+      <!-- TOOLS THỰC TẾ -->
+      <div class="feature-section-label">⚙️ Sử dụng ngay</div>
+      <div class="inner-tabs">
+        <button class="inner-tab active" onclick="switchInner('convert', this)">🔄 Chuyển đổi</button>
+        <button class="inner-tab" onclick="switchInner('image', this)">🖼 Xử lý ảnh</button>
+        <button class="inner-tab" onclick="switchInner('sub', this)">💬 Phụ đề</button>
+        <button class="inner-tab" onclick="switchInner('file', this)">📁 File</button>
+      </div>
+      <div id="inner-convert" class="inner-panel active">
+        <div class="tool-grid">
+          <div class="tool-card" onclick="useTool('MP3')"><div class="ti">🎵</div><div>→ MP3</div></div>
+          <div class="tool-card" onclick="useTool('MP4')"><div class="ti">🎬</div><div>→ MP4</div></div>
+          <div class="tool-card" onclick="useTool('FLAC')"><div class="ti">🎶</div><div>→ FLAC</div></div>
+          <div class="tool-card" onclick="useTool('WAV')"><div class="ti">〜</div><div>→ WAV</div></div>
+          <div class="tool-card" onclick="useTool('JPG')"><div class="ti">🖼</div><div>→ JPG</div></div>
+          <div class="tool-card" onclick="useTool('PNG')"><div class="ti">🖼</div><div>→ PNG</div></div>
+          <div class="tool-card" onclick="useTool('WEBP')"><div class="ti">🖼</div><div>→ WEBP</div></div>
+        </div>
+      </div>
+      <div id="inner-image" class="inner-panel hidden">
+        <div class="tool-grid">
+          <div class="tool-card" onclick="useTool('removeWatermark')"><div class="ti">✂️</div><div>Xóa Watermark</div></div>
+          <div class="tool-card" onclick="useTool('resize')"><div class="ti">⇲</div><div>Resize</div></div>
+          <div class="tool-card" onclick="useTool('crop')"><div class="ti">✁</div><div>Crop</div></div>
+          <div class="tool-card" onclick="useTool('compress')"><div class="ti">📦</div><div>Nén ảnh</div></div>
+          <div class="tool-card" onclick="useTool('gallery')"><div class="ti">🗂</div><div>Tạo Gallery</div></div>
+        </div>
+      </div>
+      <div id="inner-sub" class="inner-panel hidden">
+        <div class="tool-grid">
+          <div class="tool-card" onclick="useTool('downloadSub')"><div class="ti">⬇</div><div>Tải phụ đề</div></div>
+          <div class="tool-card" onclick="useTool('embedSub')"><div class="ti">⊕</div><div>Nhúng phụ đề</div></div>
+          <div class="tool-card" onclick="useTool('downloadThumb')"><div class="ti">🖼</div><div>Thumbnail</div></div>
+        </div>
+      </div>
+      <div id="inner-file" class="inner-panel hidden">
+        <div class="tool-grid">
+          <div class="tool-card" onclick="useTool('saveFile')"><div class="ti">💾</div><div>Lưu file</div></div>
+          <div class="tool-card" onclick="useTool('renameFile')"><div class="ti">✏️</div><div>Đổi tên</div></div>
+          <div class="tool-card" onclick="useTool('deleteFile')"><div class="ti">🗑</div><div>Xóa file</div></div>
+          <div class="tool-card" onclick="useTool('historyLog')"><div class="ti">📋</div><div>Lịch sử</div></div>
+        </div>
+      </div>
+
+      <!-- ỦNG HỘ (chuyển vào đây) -->
+      <div class="support-section" style="margin-top:36px">
+        <div class="support-left">
+          <div class="support-badge">❤️ Ủng hộ tác giả</div>
+          <h2 class="support-title">Nếu bạn thấy hữu ích</h2>
+          <p class="support-desc">MediaFlow hoàn toàn miễn phí. Nếu công cụ này giúp ích cho bạn, hãy ủng hộ tác giả một ly cà phê để duy trì và phát triển thêm tính năng mới! ☕</p>
+          <div class="support-perks">
+            <div class="perk-item">🚀 Giúp duy trì server</div>
+            <div class="perk-item">✨ Phát triển tính năng mới</div>
+            <div class="perk-item">🐛 Sửa lỗi nhanh hơn</div>
+            <div class="perk-item">💬 Hỗ trợ nhiều nền tảng hơn</div>
+          </div>
+        </div>
+        <div class="support-right">
+          <div class="qr-card">
+            <div class="qr-label">Quét QR để ủng hộ</div>
+            <div class="qr-frame">
+              <img id="qrImage" src="" alt="QR ủng hộ"
+                onerror="this.style.display='none'; document.getElementById('qrPlaceholder').style.display='flex';" />
+              <div id="qrPlaceholder" class="qr-placeholder">
+                <div class="qr-ph-icon">📷</div>
+                <div class="qr-ph-text">Thêm ảnh QR<br>của bạn vào đây</div>
+                <div class="qr-ph-hint">src="" trong thẻ &lt;img&gt;</div>
+              </div>
+            </div>
+            <div class="qr-banks">
+              <span class="bank-tag">MoMo</span>
+              <span class="bank-tag">ViettelPay</span>
+              <span class="bank-tag">Banking</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- TAB: LỊCH SỬ -->
+    <section id="tab-history" class="tab hidden">
+      <div class="page-title">Lịch sử tải xuống</div>
+      <div id="historyList" class="history-list">
+        <div class="history-empty">Chưa có lịch sử tải xuống</div>
+      </div>
+    </section>
+
+    <!-- TAB: CLOUD -->
+    <section id="tab-cloud" class="tab hidden">
+      <div class="page-title">Lưu trữ & Chia sẻ</div>
+      <div class="card-row">
+        <div class="card" onclick="useTool('saveToDrive')">
+          <div class="card-icon-wrap" style="background:#e8f0fe">☁️</div>
+          <div class="card-body">
+            <div class="card-title">Google Drive</div>
+            <div class="card-sub">Lưu tự động lên Drive</div>
+            <div class="tag-row"><span class="tag blue">Kết nối</span><span class="tag">Tự động</span></div>
+          </div>
+        </div>
+        <div class="card" onclick="useTool('saveToOneDrive')">
+          <div class="card-icon-wrap" style="background:#e3f2fd">🌤</div>
+          <div class="card-body">
+            <div class="card-title">OneDrive</div>
+            <div class="card-sub">Đồng bộ Microsoft OneDrive</div>
+            <div class="tag-row"><span class="tag">Kết nối</span><span class="tag">Tự động</span></div>
+          </div>
+        </div>
+        <div class="card" onclick="openModal('share')">
+          <div class="card-icon-wrap" style="background:#e0f2fe">↗</div>
+          <div class="card-body">
+            <div class="card-title">Chia sẻ</div>
+            <div class="card-sub">Facebook, Zalo, Telegram</div>
+            <div class="tag-row"><span class="tag">Social</span><span class="tag blue">Link 24h</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© 2025 MediaFlow</span>
+      <div class="footer-links">
+        <a href="#">Điều khoản</a>
+        <a href="#">Hỗ trợ</a>
+        <a href="#">API</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL SHARE -->
+  <div class="modal-bg hidden" id="modal-share">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Chia sẻ</h3>
+        <button class="modal-close" onclick="closeModal('share')">✕</button>
+      </div>
+      <div class="share-grid">
+        <button class="share-item" onclick="handleShare('facebook')"><span>📘</span>Facebook</button>
+        <button class="share-item" onclick="handleShare('zalo')"><span>💬</span>Zalo</button>
+        <button class="share-item" onclick="handleShare('telegram')"><span>✈️</span>Telegram</button>
+        <button class="share-item" onclick="handleShare('copy')"><span>🔗</span>Sao chép link</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"><span id="toastMsg"></span></div>
+
+  <script src="mediaflow.js"></script>
+</body>
+</html>
