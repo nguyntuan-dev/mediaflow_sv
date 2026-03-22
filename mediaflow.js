@@ -266,7 +266,7 @@ function toast(msg) {
 function show(id) { document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
 
-// ── Health check ────────────────────────────────────────────
+// Health check — chỉ gọi một lần khi load
 (async () => {
   try {
     const res = await fetch(`${API_BASE}/health`, {
@@ -278,3 +278,13 @@ function hide(id) { document.getElementById(id).classList.add('hidden'); }
     console.warn('[MediaFlow] Backend offline');
   }
 })();
+
+// Nếu muốn kiểm tra định kỳ, dùng setInterval nhưng tăng thời gian lên
+setInterval(async () => {
+  try {
+    const res = await fetch(`${API_BASE}/health`, { headers: HEADERS });
+    if (res.ok) console.info('[MediaFlow] ✓ Backend online');
+  } catch {
+    console.warn('[MediaFlow] Backend offline');
+  }
+}, 30000); // 30 giây một lần thay vì spam mỗi giây
